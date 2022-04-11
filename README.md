@@ -1,6 +1,6 @@
-# stockfish-nnue.wasm demo
+# fairy-stockfish-nnue.wasm demo
 
-Demo frontend for [stockfish-nnue.wasm](https://github.com/hi-ogawa/Stockfish)
+Demo frontend for [fairy-stockfish-nnue.wasm](https://github.com/ianfab/fairy-stockfish.wasm)
 
 ## Development
 
@@ -8,9 +8,9 @@ Demo frontend for [stockfish-nnue.wasm](https://github.com/hi-ogawa/Stockfish)
 npm install
 
 # Or use a local version of stockfish-nnue.wasm by e.g.
-npm install stockfish-nnue.wasm@../stockfish-nnue-wasm-v2/src/emscripten/public
+npm install fairy-stockfish-nnue.wasm@../fairy-stockfish-nnue-wasm-v2/src/emscripten/public
 
-# Link node_modules/stockfish-nnue.wasm to public/lib
+# Link node_modules/fairy-stockfish-nnue.wasm to public/lib
 npm run link-lib
 
 npm run serve
@@ -19,7 +19,7 @@ npm run serve
 ## Deployment
 
 ```
-# Copy node_modules/stockfish-nnue.wasm to public/lib
+# Copy node_modules/fairy-stockfish-nnue.wasm to public/lib
 npm run copy-lib
 
 # Run vercel cli
