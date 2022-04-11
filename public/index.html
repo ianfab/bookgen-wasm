@@ -98,8 +98,6 @@
   <script src="./lib/stockfish.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mithril@2.0.4/mithril.min.js"></script>
   <script>
-    const NO_EMBEDDED_NNUE = window.location.search.match("no-embedded-nnue");
-
     const $ = (...args) => document.querySelector(...args);
 
     const formatMB = (n) => {
@@ -197,6 +195,7 @@
         "stop",
         "d",
         "eval",
+        "setoption name UCI_Variant value xiangqi",
         "position startpos",
         "position fen r1k4r/ppp1bq1p/2n1N3/6B1/3p2Q1/8/PPP2PPP/R5K1 w - - 0 1",
         "setoption name Use NNUE value true",
@@ -316,9 +315,7 @@
             m("div", [
               "- download: ",
               m(RequestProgress, {
-                url: NO_EMBEDDED_NNUE
-                  ? "./lib/stockfish-no-embedded-nnue.wasm"
-                  : "./lib/stockfish.wasm",
+                url: "./lib/stockfish.wasm",
                 onFinishDownload,
               }),
             ]),
@@ -351,7 +348,7 @@
                   onclick: () =>
                     window.alert(
                       [
-                        "You can upload a stockfish-14-compatible .nnue file. See here for the detail: https://tests.stockfishchess.org/nns.",
+                        "You can upload a fairy-stockfish-14-compatible .nnue file. See here for the detail: https://github.com/ianfab/Fairy-Stockfish/wiki/List-of-networks.",
                         "Note that there might be an issue on Chrome/Chromium, which is currently under the investigation. If you want to try this feature, please check out Firefox.",
                       ].join("\n")
                     ),
