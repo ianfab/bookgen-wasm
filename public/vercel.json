@@ -11,7 +11,7 @@
     {
       "source": "/lib/stockfish.wasm",
       "headers": [
-        { "key": "x-decompressed-content-length", "value": "48504773" }
+        { "key": "x-decompressed-content-length", "value": "1463349" }
       ]
     }
   ]
