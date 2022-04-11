@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "link-lib": "rm -rf public/lib && ln -s $PWD/node_modules/stockfish-nnue.wasm public/lib",
-    "copy-lib": "rm -rf public/lib && mkdir -p public/lib && cp node_modules/stockfish-nnue.wasm/* public/lib",
+    "link-lib": "rm -rf public/lib && ln -s $PWD/node_modules/fairy-stockfish-nnue.wasm public/lib",
+    "copy-lib": "rm -rf public/lib && mkdir -p public/lib && cp node_modules/fairy-stockfish-nnue.wasm/* public/lib",
     "serve": "serve public --no-compression",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -10,7 +10,7 @@
   "dependencies": {
     "prettier": "^2.3.2",
     "serve": "^12.0.0",
-    "stockfish-nnue.wasm": "^1.0.0-alpha.2",
+    "fairy-stockfish-nnue.wasm": "^1.0.0",
     "vercel": "^23.0.1"
   }
 }
