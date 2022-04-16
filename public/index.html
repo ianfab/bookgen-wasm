@@ -265,8 +265,11 @@
           const buffer = await selected.arrayBuffer();
           const array = new Uint8Array(buffer);
           const filename = "/" + selected.name;
+          const variant = selected.name.split(/[_.-]+/)[0];
           FS.writeFile(filename, array);
           stockfish.postMessage(`setoption name EvalFile value ${filename}`);
+          stockfish.postMessage(`setoption name UCI_Variant value ${variant}`);
+          stockfish.postMessage(`position startpos`);
           stockfish.postMessage(`eval`);
         }
       };
