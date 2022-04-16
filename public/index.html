@@ -271,6 +271,19 @@
         }
       };
 
+      const onSelectVariantsFile = async (e) => {
+        const selected = e.currentTarget.files[0];
+        if (selected) {
+          const FS = stockfish.FS;
+          const buffer = await selected.arrayBuffer();
+          const array = new Uint8Array(buffer);
+          const filename = "/" + selected.name;
+          FS.writeFile(filename, array);
+          stockfish.postMessage(`check ${filename}`);
+          stockfish.postMessage(`load ${filename}`);
+        }
+      };
+
       const oninit = () => {
         stockfish_state = "LOADING";
       };
@@ -351,6 +364,25 @@
                         "You can upload a fairy-stockfish-14-compatible .nnue file. See here for the detail: https://github.com/ianfab/Fairy-Stockfish/wiki/List-of-networks.",
                         "Note that there might be an issue on Chrome/Chromium, which is currently under the investigation. If you want to try this feature, please check out Firefox.",
                       ].join("\n")
+                    ),
+                },
+                "[?]"
+              ),
+            ]),
+            m("div", [
+              "- variants.ini: ",
+              m("input", {
+                type: "file",
+                disabled: !is_ready,
+                onchange: onSelectVariantsFile,
+              }),
+              m(
+                "span",
+                {
+                  style: "cursor: pointer;",
+                  onclick: () =>
+                    window.alert(
+                      "You can upload a fairy-stockfish-14-compatible variants.ini file. See here for details: https://github.com/ianfab/Fairy-Stockfish/wiki/Variant-configuration."
                     ),
                 },
                 "[?]"
