@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <head>
   <meta charset="utf-8" />
-  <title>fairy-stockfish-nnue.wasm</title>
+  <title>fairy-stockfish analysis</title>
   <meta
     name="viewport"
     content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no"
@@ -53,14 +53,21 @@
     margin-bottom: 10px;
   }
 
-  #input #command {
-    width: 80%;
+  #input #fen {
+    width: 50%;
     padding: 2px 0 2px 6px;
     border: 1px solid #ddd;
     border-right: 0;
   }
 
-  #input #send {
+  #input #move {
+    width: 10%;
+    padding: 2px 0 2px 6px;
+    border: 1px solid #ddd;
+    border-right: 0;
+  }
+
+  #input #set {
     display: inline-block;
     padding: 3px 6px 3px 6px;
     background: #888;
@@ -70,7 +77,7 @@
     cursor: pointer;
   }
 
-  #input #examples {
+  #input #variant {
     width: 120px;
     background: #eee;
   }
@@ -79,14 +86,32 @@
     margin-bottom: 10px;
   }
 
-  #output {
+  #outputs {
+    display: flex;
     flex: 1 1 auto;
     width: 100%;
+    height: 50%;
+  }
+
+  #output {
+    flex: 1 1 auto;
+    width: 40%;
     border: 1px solid #ddd;
     padding: 10px;
-    overflow: scroll;
+    overflow: hidden;
     box-shadow: inset 1px 1px 2px #eee;
-    font-size: 11px;
+    font-size: 22px;
+  }
+
+  #output2 {
+    flex: 1 1 auto;
+    width: 60%;
+    border: 1px solid #ddd;
+    padding: 10px;
+    overflow-x: scroll;
+    overflow-y: scroll;
+    box-shadow: inset 1px 1px 2px #eee;
+    font-size: 14px;
   }
 </style>
 
@@ -187,40 +212,49 @@
       let stockfish = null;
       let stockfish_state = "INIT"; // 'READY', 'FAILED'
       let output = "";
-      let tail_mode = true;
+      let output2 = "";
+      let analysis_mode = true;
 
-      const examples = [
-        "uci",
-        "go",
-        "stop",
-        "d",
-        "eval",
-        "setoption name UCI_Variant value xiangqi",
-        "position startpos",
-        "position fen r1k4r/ppp1bq1p/2n1N3/6B1/3p2Q1/8/PPP2PPP/R5K1 w - - 0 1",
-        "setoption name Use NNUE value true",
-        "setoption name Use NNUE value false",
-        "setoption name Threads value 1",
-        "setoption name Threads value 4",
-        "bench 16 1 20 current depth NNUE",
-        "bench 16 1 20 current depth classical",
-        "bench_eval",
-      ];
+      let variants = [];
 
-      const sendCommand = () => {
-        const command = $("#command").value;
-        if (command.length > 0) {
-          stockfish.postMessage(command);
-          $("#command").value = '';
+      const getVariants = () => {
+        stockfish.postMessage(`uci`);
+      };
+
+      const setVariant = () => {
+        const variant = $("#variant").value;
+        stockfish.postMessage(`setoption name UCI_Variant value ${variant}`);
+        stockfish.postMessage(`position startpos`);
+        output = "";
+        stockfish.postMessage(`d`);
+      };
+
+      const setFen = () => {
+        const fen = $("#fen").value;
+        const moves = $("#move").value;
+        if (fen.length > 0) {
+          stockfish.postMessage(`position fen ${fen} moves ${moves}`);
         }
+        else
+        {
+          stockfish.postMessage(`position startpos moves ${moves}`);
+        }
+        output = "";
+        stockfish.postMessage(`d`);
+      };
+
+      const go = () => {
+        stockfish.postMessage(`go`);
+        output2 = "";
+      };
+
+      const stop = () => {
+        stockfish.postMessage(`stop`);
       };
 
       const scrollOutput = () => {
-        if (!tail_mode) {
-          return;
-        }
-        $("#output").scrollTo({
-          top: $("#output").scrollHeight,
+        $("#output2").scrollTo({
+          top: $("#output2").scrollHeight,
           behavior: "smooth",
         });
       };
@@ -242,9 +276,30 @@
             stockfish = _stockfish;
             stockfish_state = "READY";
             stockfish.addMessageListener((line) => {
-              output += line + "\n";
+              if (line.startsWith("option")) {
+                if (line.startsWith("option name UCI_Variant")) {
+                  variants = line.replace("option name UCI_Variant type combo default chess var ", "").replace(/ var /g, " ").split(" ");
+                }
+              }
+              else if (line.startsWith(" ")) {
+                output += line + "\n";
+              }
+              else {
+                if (line.startsWith("Fen:")) {
+                  $("#fen").value = line.replace("Fen: ", "");
+                  $("#move").value = "";
+                }
+                if (line.startsWith("bestmove")) {
+                  $("#move").value = line.split(" ")[1];
+                  if (!analysis_mode) {
+                    setFen();
+                  }
+                }
+                output2 += line + "\n";
+              }
               m.redraw();
             });
+            getVariants();
           })
           .catch((e) => {
             stockfish_state = "FAILED";
@@ -271,7 +326,6 @@
           stockfish.postMessage(`setoption name EvalFile value ${filename}`);
           stockfish.postMessage(`setoption name UCI_Variant value ${variant}`);
           stockfish.postMessage(`position startpos`);
-          stockfish.postMessage(`eval`);
         }
       };
 
@@ -285,6 +339,7 @@
           FS.writeFile(filename, array);
           stockfish.postMessage(`check ${filename}`);
           stockfish.postMessage(`load ${filename}`);
+          getVariants();
         }
       };
 
@@ -296,38 +351,6 @@
         const is_ready = stockfish_state == "READY";
 
         return m("main", [
-          m("div#input", [
-            m("input#command", {
-              placeholder: "Input UCI Command Here",
-              disabled: !is_ready,
-              onkeyup: (e) => {
-                if (e.keyCode != 13) {
-                  e.redraw = false;
-                  return;
-                }
-                sendCommand();
-              },
-            }),
-            m(
-              "span#send",
-              { disabled: !is_ready, onclick: sendCommand },
-              "SEND"
-            ),
-            m(
-              "select#examples",
-              {
-                disabled: !is_ready,
-                onchange: (e) => {
-                  $("#command").value = e.target.value;
-                  window.setTimeout(sendCommand, 10);
-                },
-              },
-              [
-                m("option", { value: "" }, "-- EXAMPLE --"),
-                ...examples.map((ex, index) => m("option", { value: ex }, ex)),
-              ]
-            ),
-          ]),
           m("div#misc", [
             m("div", [
               "- download: ",
@@ -337,20 +360,6 @@
               }),
             ]),
             m("div", `- stockfish state: ${stockfish_state}`),
-            m("div", [
-              m("span", { style: "margin-right: 5px;" }, "- tail mode:"),
-              m(
-                "span",
-                {
-                  style: "cursor: pointer;",
-                  onclick: () => {
-                    tail_mode = !tail_mode;
-                    scrollOutput();
-                  },
-                },
-                [tail_mode ? "[x]" : "[ ]"]
-              ),
-            ]),
             m("div", [
               "- nnue file: ",
               m("input", {
@@ -392,8 +401,74 @@
                 "[?]"
               ),
             ]),
+            m("div", [
+              m("span", { style: "margin-right: 5px;" }, "- analysis mode:"),
+              m(
+                "span",
+                {
+                  style: "cursor: pointer;",
+                  onclick: () => {
+                    analysis_mode = !analysis_mode;
+                    scrollOutput();
+                  },
+                },
+                [analysis_mode ? "[x]" : "[ ]"]
+              ),
+            ]),
           ]),
-          m("div#output", { onupdate: scrollOutput }, m("pre", output)),
+          m("div#input", [
+            m(
+              "select#variant",
+              {
+                disabled: !is_ready,
+                onchange: (e) => {
+                  window.setTimeout(setVariant, 10);
+                },
+              },
+              [
+                m("option", { value: "" }, "-- VARIANT --"),
+                ...variants.map((ex, index) => m("option", { value: ex }, ex)),
+              ]
+            ),
+            m("input#fen", {
+              placeholder: "Input FEN Here",
+              disabled: !is_ready,
+              onkeyup: (e) => {
+                if (e.keyCode != 13) {
+                  e.redraw = false;
+                  return;
+                }
+                setFen();
+              },
+            }),
+            m("input#move", {
+              placeholder: "Input Move Here",
+              disabled: !is_ready,
+              onkeyup: (e) => {
+                if (e.keyCode != 13) {
+                  e.redraw = false;
+                  return;
+                }
+                setFen();
+              },
+            }),
+            m(
+              "span#set",
+              { disabled: !is_ready, onclick: setFen },
+              "Set"
+            ),
+          ]),
+          m("div#input", [
+            m("span#set",
+              { disabled: !is_ready, onclick: go},
+              "Go"
+            ),
+            m("span#set",
+              { disabled: !is_ready, onclick: stop},
+              "Stop"
+            ),
+          ]),
+          m("div#outputs", [m("div#output", m("pre", output)), m("div#output2", { onupdate: scrollOutput }, m("pre", output2))]),
         ]);
       };
 
