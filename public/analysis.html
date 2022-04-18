@@ -67,6 +67,20 @@
     border-right: 0;
   }
 
+  #input #movetime {
+    width: 5%;
+    padding: 2px 0 2px 6px;
+    border: 1px solid #ddd;
+    border-right: 0;
+  }
+
+  #input #depth {
+    width: 5%;
+    padding: 2px 0 2px 6px;
+    border: 1px solid #ddd;
+    border-right: 0;
+  }
+
   #input #set {
     display: inline-block;
     padding: 3px 6px 3px 6px;
@@ -244,7 +258,16 @@
       };
 
       const go = () => {
-        stockfish.postMessage(`go`);
+        let args = "";
+        const movetime = $("#movetime").value;
+        const depth = $("#depth").value;
+        if (movetime.length > 0) {
+          args += ` movetime ${movetime}`;
+        }
+        if (depth.length > 0) {
+          args += ` depth ${depth}`;
+        }
+        stockfish.postMessage(`go${args}`);
         output2 = "";
       };
 
@@ -459,6 +482,14 @@
             ),
           ]),
           m("div#input", [
+            m("input#depth", {
+              placeholder: "Depth",
+              disabled: !is_ready,
+            }),
+            m("input#movetime", {
+              placeholder: "Movetime",
+              disabled: !is_ready,
+            }),
             m("span#set",
               { disabled: !is_ready, onclick: go},
               "Go"
