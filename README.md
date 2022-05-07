@@ -1,6 +1,6 @@
-# fairy-stockfish-nnue.wasm demo
+# bookgen-wasm
 
-Demo frontend for [fairy-stockfish-nnue.wasm](https://github.com/ianfab/fairy-stockfish.wasm)
+EPD opening book generation in the browser using the [WebAssembly port](https://github.com/ianfab/fairy-stockfish.wasm/tree/bookgen) of the Fairy-Stockfish based [book generator](https://github.com/ianfab/bookgen).
 
 ## Development
 
