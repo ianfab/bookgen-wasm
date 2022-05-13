@@ -48,35 +48,46 @@
     padding: 10px;
   }
 
-  #input {
-    display: flex;
+  #misc {
     margin-bottom: 10px;
   }
 
-  #input #command {
-    width: 80%;
+  #settings input {
+    width: 10%;
     padding: 2px 0 2px 6px;
     border: 1px solid #ddd;
-    border-right: 0;
+    margin-bottom: 10px;
   }
 
-  #input #send {
+  #generate input {
+    width: 10%;
+    padding: 2px 0 2px 6px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+  }
+
+  #filter input {
+    width: 10%;
+    padding: 2px 0 2px 6px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+  }
+
+  select {
+    width: 10%;
+    padding: 2px 0 2px 6px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+  }
+
+  button {
     display: inline-block;
     padding: 3px 6px 3px 6px;
     background: #888;
     color: #fff;
     font-weight: bold;
-    margin-right: 6px;
+    margin-left: 6px;
     cursor: pointer;
-  }
-
-  #input #examples {
-    width: 120px;
-    background: #eee;
-  }
-
-  #misc {
-    margin-bottom: 10px;
   }
 
   #outputs {
@@ -209,18 +220,19 @@
       let count = 0;
       let size = 0;
 
-      const examples = [
-        "uci",
-        "setoption name multipv value 4",
-        "setoption name Threads value 4",
-        "setoption name UCI_Variant value xiangqi",
-        "ucinewgame",
-        "position startpos",
-        "generate 2 perft",
-        "filter depth 5",
-        "size",
-        "print",
-      ];
+      let variants = [];
+
+      const getVariants = () => {
+        stockfish.postMessage(`uci`);
+      };
+
+      const setVariant = () => {
+        const variant = $("#variant").value;
+        stockfish.postMessage(`setoption name UCI_Variant value ${variant}`);
+        stockfish.postMessage(`position startpos`);
+        output = "";
+        stockfish.postMessage(`d`);
+      };
 
       const sendCommand = () => {
         const command = $("#command").value;
@@ -228,6 +240,72 @@
           stockfish.postMessage(command);
           $("#command").value = "";
         }
+      };
+
+      const setThreads = async (e) => {
+        const threads = $("#threads").value;
+        stockfish.postMessage(`stop`);
+        stockfish.postMessage(`setoption name Threads value ${threads}`);
+      };
+
+      const setHash = async (e) => {
+        const hash = $("#hash").value;
+        stockfish.postMessage(`stop`);
+        stockfish.postMessage(`setoption name Hash value ${hash}`);
+      };
+
+      const setMultiPV = async (e) => {
+        const multipv = $("#multipv").value;
+        stockfish.postMessage(`stop`);
+        stockfish.postMessage(`setoption name multipv value ${multipv}`);
+      };
+
+      const generate = () => {
+        let args = "";
+        const bookdepth = $("#bookdepth").value;
+        if (bookdepth) {
+          epd = "";
+          const perft = $("#perft").value;
+          const movetime = $("#movetime").value;
+          const depth = $("#depth").value;
+          if (perft) {
+            args = perft;
+          } else {
+            if (movetime.length > 0) {
+              args += ` movetime ${movetime}`;
+            }
+            if (depth.length > 0) {
+              args += ` depth ${depth}`;
+            }
+          }
+          stockfish.postMessage(`generate ${bookdepth} ${args}`);
+          stockfish.postMessage(`size`);
+          stockfish.postMessage(`print`);
+        }
+      };
+
+      const filter = () => {
+        let args = "";
+        epd = "";
+        const movetime = $("#filtermovetime").value;
+        const depth = $("#filterdepth").value;
+        if (movetime.length > 0) {
+          args += ` movetime ${movetime}`;
+        }
+        if (depth.length > 0) {
+          args += ` depth ${depth}`;
+        }
+        if (args) {
+          stockfish.postMessage(`filter ${bookdepth} ${args}`);
+        }
+        stockfish.postMessage(`size`);
+        stockfish.postMessage(`print`);
+      };
+
+      const clear = () => {
+        epd = "";
+        stockfish.postMessage(`clear`);
+        stockfish.postMessage(`size`);
       };
 
       const scrollOutput = () => {
@@ -254,7 +332,21 @@
             stockfish_state = "READY";
             var re = /^\d+$/;
             stockfish.addMessageListener((line) => {
-              if (line.includes("/") && !line.includes(":")) {
+              if (line.startsWith("option")) {
+                if (line.startsWith("option name UCI_Variant")) {
+                  variants = line
+                    .replace(
+                      "option name UCI_Variant type combo default chess var ",
+                      ""
+                    )
+                    .replace(/ var /g, " ")
+                    .split(" ");
+                }
+              } else if (
+                line.includes("/") &&
+                !line.includes(":") &&
+                !line.includes("info")
+              ) {
                 epd += line + "\n";
               } else if (
                 !(line.includes("info ") || line.includes("bestmove ")) ||
@@ -270,6 +362,7 @@
               }
               m.redraw();
             });
+            getVariants();
           })
           .catch((e) => {
             stockfish_state = "FAILED";
@@ -334,38 +427,6 @@
         const is_ready = stockfish_state == "READY";
 
         return m("main", [
-          m("div#input", [
-            m("input#command", {
-              placeholder: "Input UCI Command Here",
-              disabled: !is_ready,
-              onkeyup: (e) => {
-                if (e.keyCode != 13) {
-                  e.redraw = false;
-                  return;
-                }
-                sendCommand();
-              },
-            }),
-            m(
-              "span#send",
-              { disabled: !is_ready, onclick: sendCommand },
-              "SEND"
-            ),
-            m(
-              "select#examples",
-              {
-                disabled: !is_ready,
-                onchange: (e) => {
-                  $("#command").value = e.target.value;
-                  window.setTimeout(sendCommand, 10);
-                },
-              },
-              [
-                m("option", { value: "" }, "-- EXAMPLE --"),
-                ...examples.map((ex, index) => m("option", { value: ex }, ex)),
-              ]
-            ),
-          ]),
           m("div#misc", [
             m("div", [
               "- download: ",
@@ -431,7 +492,78 @@
               ),
             ]),
           ]),
-          m("a[href='#']#export", { onclick: downloadEpd }, "Download as EPD"),
+          m("div#settings", [
+            m(
+              "select#variant",
+              {
+                disabled: !is_ready,
+                onchange: (e) => {
+                  window.setTimeout(setVariant, 10);
+                },
+              },
+              [
+                m("option", { value: "" }, "-- VARIANT --"),
+                ...variants.map((ex, index) => m("option", { value: ex }, ex)),
+              ]
+            ),
+            m("input#threads", {
+              placeholder: "Threads",
+              disabled: !is_ready,
+              onchange: setThreads,
+            }),
+            m("input#hash", {
+              placeholder: "Hash",
+              disabled: !is_ready,
+              onchange: setHash,
+            }),
+            m("input#multipv", {
+              placeholder: "MultiPV",
+              disabled: !is_ready,
+              onchange: setMultiPV,
+            }),
+          ]),
+          m("div#generate", [
+            m("input#bookdepth", {
+              placeholder: "Bookdepth",
+              disabled: !is_ready,
+            }),
+            m(
+              "select#perft",
+              {
+                disabled: !is_ready,
+              },
+              [
+                m("option", { value: "perft" }, "perft"),
+                m("option", { value: "" }, "multipv"),
+              ]
+            ),
+            m("input#depth", {
+              placeholder: "depth",
+              disabled: !is_ready,
+            }),
+            m("input#movetime", {
+              placeholder: "movetime",
+              disabled: !is_ready,
+            }),
+            m("button", { disabled: !is_ready, onclick: generate }, "Generate"),
+          ]),
+          m("div#filter", [
+            m("input#filterdepth", {
+              placeholder: "depth",
+              disabled: !is_ready,
+            }),
+            m("input#filtermovetime", {
+              placeholder: "movetime",
+              disabled: !is_ready,
+            }),
+            m("button", { disabled: !is_ready, onclick: filter }, "Filter"),
+          ]),
+          m("div", [
+            m("span", { style: "margin-right: 5px;" }, "Current size:"),
+            m("span", `${size}`),
+            m("button", { onclick: downloadEpd }, "Download"),
+            m("button", { onclick: clear }, "Clear"),
+          ]),
           m("div#outputs", [
             m("div#epd", m("pre", epd)),
             m("div#output", { onupdate: scrollOutput }, m("pre", output)),
