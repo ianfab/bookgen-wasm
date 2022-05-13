@@ -533,7 +533,9 @@
               "select#perft",
               {
                 disabled: !is_ready,
-                onchange: (e) => { perft = $("#perft").value },
+                onchange: (e) => {
+                  perft = $("#perft").value;
+                },
               },
               [
                 m("option", { value: "perft" }, "perft"),
