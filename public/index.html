@@ -219,6 +219,7 @@
       let verbose = false;
       let count = 0;
       let size = 0;
+      let perft = "perft";
 
       let variants = [];
 
@@ -531,6 +532,7 @@
               "select#perft",
               {
                 disabled: !is_ready,
+                onchange: (e) => { perft = $("#perft").value },
               },
               [
                 m("option", { value: "perft" }, "perft"),
@@ -540,10 +542,12 @@
             m("input#depth", {
               placeholder: "depth",
               disabled: !is_ready,
+              hidden: perft,
             }),
             m("input#movetime", {
               placeholder: "movetime",
               disabled: !is_ready,
+              hidden: perft,
             }),
             m("button", { disabled: !is_ready, onclick: generate }, "Generate"),
           ]),
