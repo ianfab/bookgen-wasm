@@ -79,9 +79,26 @@
     margin-bottom: 10px;
   }
 
-  #output {
+  #outputs {
+    display: flex;
     flex: 1 1 auto;
     width: 100%;
+    height: 50%;
+  }
+
+  #output {
+    flex: 1 1 auto;
+    width: 50%;
+    border: 1px solid #ddd;
+    padding: 10px;
+    overflow: scroll;
+    box-shadow: inset 1px 1px 2px #eee;
+    font-size: 11px;
+  }
+
+  #epd {
+    flex: 1 1 auto;
+    width: 50%;
     border: 1px solid #ddd;
     padding: 10px;
     overflow: scroll;
@@ -187,7 +204,10 @@
       let stockfish = null;
       let stockfish_state = "INIT"; // 'READY', 'FAILED'
       let output = "";
-      let tail_mode = true;
+      let epd = "";
+      let verbose = false;
+      let count = 0;
+      let size = 0;
 
       const examples = [
         "uci",
@@ -211,12 +231,8 @@
       };
 
       const scrollOutput = () => {
-        if (!tail_mode) {
-          return;
-        }
         $("#output").scrollTo({
           top: $("#output").scrollHeight,
-          behavior: "smooth",
         });
       };
 
@@ -236,8 +252,22 @@
           .then((_stockfish) => {
             stockfish = _stockfish;
             stockfish_state = "READY";
+            var re = /^\d+$/;
             stockfish.addMessageListener((line) => {
-              output += line + "\n";
+              if (line.includes("/") && !line.includes(":")) {
+                epd += line + "\n";
+              } else if (
+                !(line.includes("info ") || line.includes("bestmove ")) ||
+                verbose
+              ) {
+                if (line.match(re)) {
+                  size = line;
+                }
+                output += line + "\n";
+              } else if (line.includes("bestmove ")) {
+                count++;
+                output = `${count}/${size}\n`;
+              }
               m.redraw();
             });
           })
@@ -281,6 +311,19 @@
           stockfish.postMessage(`check ${filename}`);
           stockfish.postMessage(`load ${filename}`);
         }
+      };
+
+      const downloadEpd = () => {
+        var epdContent = $("#epd")
+          .innerHTML.replace(/<\/pre>/g, "")
+          .replace(/<pre>/g, "");
+        var link = document.createElement("a");
+        link.setAttribute("download", "book.epd");
+        link.setAttribute(
+          "href",
+          "data:text/plain;charset=utf-8," + encodeURIComponent(epdContent)
+        );
+        link.click();
       };
 
       const oninit = () => {
@@ -333,17 +376,17 @@
             ]),
             m("div", `- stockfish state: ${stockfish_state}`),
             m("div", [
-              m("span", { style: "margin-right: 5px;" }, "- tail mode:"),
+              m("span", { style: "margin-right: 5px;" }, "- verbose mode:"),
               m(
                 "span",
                 {
                   style: "cursor: pointer;",
                   onclick: () => {
-                    tail_mode = !tail_mode;
+                    verbose = !verbose;
                     scrollOutput();
                   },
                 },
-                [tail_mode ? "[x]" : "[ ]"]
+                [verbose ? "[x]" : "[ ]"]
               ),
             ]),
             m("div", [
@@ -388,7 +431,11 @@
               ),
             ]),
           ]),
-          m("div#output", { onupdate: scrollOutput }, m("pre", output)),
+          m("a[href='#']#export", { onclick: downloadEpd }, "Download as EPD"),
+          m("div#outputs", [
+            m("div#epd", m("pre", epd)),
+            m("div#output", { onupdate: scrollOutput }, m("pre", output)),
+          ]),
         ]);
       };
 
