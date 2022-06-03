@@ -411,6 +411,7 @@
           FS.writeFile(filename, array);
           stockfish.postMessage(`check ${filename}`);
           stockfish.postMessage(`load ${filename}`);
+          getVariants();
         }
       };
 
