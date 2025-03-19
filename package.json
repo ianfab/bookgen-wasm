@@ -10,7 +10,7 @@
   "dependencies": {
     "prettier": "^2.3.2",
     "serve": "^12.0.0",
-    "fairy-stockfish-nnue.wasm": "1.1.5-bookgen.1",
+    "fairy-stockfish-nnue.wasm": "1.1.9-bookgen.1",
     "vercel": "^23.0.1"
   }
 }
