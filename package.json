@@ -11,6 +11,6 @@
     "prettier": "^3.6.2",
     "serve": "^14.2.5",
     "bookgen.wasm": "1.1.10",
-    "vercel": "^48.5.0"
+    "vercel": "^48.6.0"
   }
 }
