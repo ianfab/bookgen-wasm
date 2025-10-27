@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <head>
   <meta charset="utf-8" />
   <title>bookgen.wasm</title>
@@ -172,7 +172,7 @@
               total =
                 e.total ||
                 Number(
-                  e.target.getResponseHeader("x-decompressed-content-length")
+                  e.target.getResponseHeader("x-decompressed-content-length"),
                 );
               m.redraw();
             };
@@ -186,7 +186,7 @@
             console.error(e);
             state = "FAILED";
             onFinishDownload(null);
-          }
+          },
         );
       };
 
@@ -201,10 +201,10 @@
               style: "cursor: pointer;",
               onclick: () =>
                 window.alert(
-                  "On some browsers, download size might look contradicted due to file compression."
+                  "On some browsers, download size might look contradicted due to file compression.",
                 ),
             },
-            "[?]"
+            "[?]",
           ),
         ]);
       };
@@ -340,7 +340,7 @@
                   variants = line
                     .replace(
                       "option name UCI_Variant type combo default chess var ",
-                      ""
+                      "",
                     )
                     .replace(/ var /g, " ")
                     .split(" ");
@@ -418,7 +418,7 @@
         link.setAttribute("download", "book.epd");
         link.setAttribute(
           "href",
-          "data:text/plain;charset=utf-8," + encodeURIComponent(epdContent)
+          "data:text/plain;charset=utf-8," + encodeURIComponent(epdContent),
         );
         link.click();
       };
@@ -451,7 +451,7 @@
                     scrollOutput();
                   },
                 },
-                [verbose ? "[x]" : "[ ]"]
+                [verbose ? "[x]" : "[ ]"],
               ),
             ]),
             m("div", [
@@ -467,10 +467,10 @@
                   style: "cursor: pointer;",
                   onclick: () =>
                     window.alert(
-                      "You can upload a fairy-stockfish-14-compatible .nnue file. See here for details: https://fairy-stockfish.github.io/nnue/#current-best-nnue-networks."
+                      "You can upload a fairy-stockfish-14-compatible .nnue file. See here for details: https://fairy-stockfish.github.io/nnue/#current-best-nnue-networks.",
                     ),
                 },
-                "[?]"
+                "[?]",
               ),
             ]),
             m("div", [
@@ -486,10 +486,10 @@
                   style: "cursor: pointer;",
                   onclick: () =>
                     window.alert(
-                      "You can upload a fairy-stockfish-14-compatible variants.ini file. See here for details: https://github.com/ianfab/Fairy-Stockfish/wiki/Variant-configuration."
+                      "You can upload a fairy-stockfish-14-compatible variants.ini file. See here for details: https://github.com/ianfab/Fairy-Stockfish/wiki/Variant-configuration.",
                     ),
                 },
-                "[?]"
+                "[?]",
               ),
             ]),
           ]),
@@ -505,7 +505,7 @@
               [
                 m("option", { value: "" }, "-- VARIANT --"),
                 ...variants.map((ex, index) => m("option", { value: ex }, ex)),
-              ]
+              ],
             ),
             m("input#threads", {
               placeholder: "Threads",
@@ -539,7 +539,7 @@
               [
                 m("option", { value: "perft" }, "perft"),
                 m("option", { value: "" }, "multipv"),
-              ]
+              ],
             ),
             m("input#depth", {
               placeholder: "depth",
@@ -579,7 +579,7 @@
             m("a[href='https://github.com/ianfab/bookgen']", "bookgen"),
             m(
               "a[href='https://github.com/ianfab/Fairy-Stockfish']",
-              "Fairy-Stockfish"
+              "Fairy-Stockfish",
             ),
           ]),
         ]);
@@ -590,7 +590,7 @@
 
     if (!isSupported()) {
       window.alert(
-        "Your browser is not supported. For more information, please take a look at https://github.com/hi-ogawa/Stockfish/wiki."
+        "Your browser is not supported. For more information, please take a look at https://github.com/hi-ogawa/Stockfish/wiki.",
       );
     } else {
       m.mount($("#root"), App);
