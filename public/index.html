@@ -271,6 +271,12 @@
         stockfish.postMessage(`setoption name multipv value ${multipv}`);
       };
 
+      const setPosition = () => {
+        stockfish.postMessage(getPositionCommand());
+        output = "";
+        stockfish.postMessage(`d`);
+      };
+
       const generate = () => {
         let args = "";
         const bookdepth = $("#bookdepth").value;
@@ -519,6 +525,7 @@
             m("input#fen", {
               placeholder: "FEN (optional)",
               disabled: !is_ready,
+              onchange: setPosition,
             }),
             m("input#threads", {
               placeholder: "Threads",
