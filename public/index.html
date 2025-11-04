@@ -228,10 +228,19 @@
         stockfish.postMessage(`uci`);
       };
 
+      const getPositionCommand = () => {
+        const fen = $("#fen").value.trim();
+        if (fen.length > 0) {
+          return `position fen ${fen}`;
+        } else {
+          return `position startpos`;
+        }
+      };
+
       const setVariant = () => {
         const variant = $("#variant").value;
         stockfish.postMessage(`setoption name UCI_Variant value ${variant}`);
-        stockfish.postMessage(`position startpos`);
+        stockfish.postMessage(getPositionCommand());
         output = "";
         stockfish.postMessage(`d`);
       };
@@ -391,7 +400,7 @@
           FS.writeFile(filename, array);
           stockfish.postMessage(`setoption name EvalFile value ${filename}`);
           stockfish.postMessage(`setoption name UCI_Variant value ${variant}`);
-          stockfish.postMessage(`position startpos`);
+          stockfish.postMessage(getPositionCommand());
           stockfish.postMessage(`eval`);
         }
       };
@@ -507,6 +516,10 @@
                 ...variants.map((ex, index) => m("option", { value: ex }, ex)),
               ],
             ),
+            m("input#fen", {
+              placeholder: "FEN (optional)",
+              disabled: !is_ready,
+            }),
             m("input#threads", {
               placeholder: "Threads",
               disabled: !is_ready,
