@@ -1,10 +1,35 @@
 version: 2
 updates:
-  # Enable version updates for npm
+  # bookgen-wasm related npm package - weekly updates
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
+    allow:
+      - dependency-name: "bookgen-wasm"
+    groups:
+      bookgen-wasm:
+        patterns:
+          - "*"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "bookgen-wasm"
+
+  # All other npm packages - monthly updates
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    ignore:
+      - dependency-name: "bookgen-wasm"
+    groups:
+      npm-dependencies:
+        patterns:
+          - "*"
+    labels:
+      - "dependencies"
+      - "npm"
 
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
