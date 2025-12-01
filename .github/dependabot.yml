@@ -12,10 +12,6 @@ updates:
       bookgen-wasm:
         patterns:
           - "*"
-    labels:
-      - "dependencies"
-      - "npm"
-      - "bookgen-wasm"
 
   # All other npm packages - quarterly updates
   - package-ecosystem: "npm"
@@ -28,9 +24,6 @@ updates:
       npm-dependencies:
         patterns:
           - "*"
-    labels:
-      - "dependencies"
-      - "npm"
 
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
