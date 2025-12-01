@@ -7,7 +7,7 @@ updates:
     schedule:
       interval: "weekly"
     allow:
-      - dependency-name: "bookgen-wasm"
+      - dependency-name: "bookgen.wasm"
     groups:
       bookgen-wasm:
         patterns:
@@ -23,7 +23,7 @@ updates:
     schedule:
       interval: "quarterly"
     ignore:
-      - dependency-name: "bookgen-wasm"
+      - dependency-name: "bookgen.wasm"
     groups:
       npm-dependencies:
         patterns:
