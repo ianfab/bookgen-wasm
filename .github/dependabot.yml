@@ -16,11 +16,11 @@ updates:
       - "npm"
       - "bookgen-wasm"
 
-  # All other npm packages - monthly updates
+  # All other npm packages - quarterly updates
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "quarterly"
     ignore:
       - dependency-name: "bookgen-wasm"
     groups:
@@ -35,4 +35,4 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "quarterly"
