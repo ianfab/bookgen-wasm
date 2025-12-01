@@ -1,13 +1,32 @@
 version: 2
 updates:
-  # Enable version updates for npm
+  # bookgen-wasm related npm package - weekly updates
   - package-ecosystem: "npm"
+    target-branch: "main" # see https://github.com/dependabot/dependabot-core/issues/1778#issuecomment-1988140219
     directory: "/"
     schedule:
       interval: "weekly"
+    allow:
+      - dependency-name: "bookgen.wasm"
+    groups:
+      bookgen-wasm:
+        patterns:
+          - "*"
+
+  # All other npm packages - quarterly updates
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "quarterly"
+    ignore:
+      - dependency-name: "bookgen.wasm"
+    groups:
+      npm-dependencies:
+        patterns:
+          - "*"
 
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "quarterly"
