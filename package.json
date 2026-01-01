@@ -8,9 +8,9 @@
     "deploy": "vercel deploy public --prod"
   },
   "dependencies": {
-    "prettier": "^3.7.3",
+    "prettier": "^3.7.4",
     "serve": "^14.2.5",
     "bookgen.wasm": "1.1.10",
-    "vercel": "^48.12.0"
+    "vercel": "^50.1.3"
   }
 }
